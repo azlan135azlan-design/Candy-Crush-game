@@ -408,9 +408,8 @@ void drawtick(float cx, float cy, float s, Color col) {
     drawbar(cx - s * 0.12f, cy + s * 0.34f, cx + s * 0.5f, cy - s * 0.36f, s * 0.2f, col);
 }
 
-// one candy: a coloured ball with a shadow and a shine
-void drawCandy(int type, float cx, float cy)
-{
+
+void drawCandy(int type, float cx, float cy) {
     if (type < 0 || type >= max_color) return;
     float radius = CELL * 0.33f;
     Color candyColor = CANDY_MAIN[type];
