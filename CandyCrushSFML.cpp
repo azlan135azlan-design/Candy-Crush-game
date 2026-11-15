@@ -318,6 +318,55 @@ startMoves = 20;
 starScore[0]=starScore[1]=starScore[2]=0;
     }
 }
+void locallevels(int number, int diff) 
+{
+    getlevelDefer(number, diff);
+    gameScore = 0;
+    movesLeft = startMoves;
+    collected = 0;
+    combo = 0;
+    gameDifficulty = diff;
+
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < colms; c++)
+        {
+            boardColor[r][c] = EMPTY;
+            boardJelly[r][c] = 0;
+            // level 3: a 3x3 jelly area in the centre
+            if (number == 3 && r >= 2 && r <= 4 && c >= 2 && c <= 4)
+            {
+                boardJelly[r][c] = 1;
+            }
+       }
+     }
+}
+
+// remove the marked candies, count score, goal and jelly
+int removedcandies(bool marked[rows][colms], int comboValue) 
+{
+    int cleared = 0;
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < colms; c++)
+        {
+            if (!marked[r][c] || boardColor[r][c] == EMPTY) continue;
+            cleared++;
+            if (goalType == GOAL_COLLECT && boardColor[r][c] == goalColor)
+                collected++;
+            if (boardJelly[r][c] > 0)
+                boardJelly[r][c]--;
+            boardColor[r][c] = EMPTY;
+        }
+    }
+    gameScore += cleared * 20 * comboValue;
+    if (goalType == GOAL_ENDLESS && comboValue >= 3 && cleared > 0)
+    {
+        movesLeft++;                           // bonus move for a big combo
+    }
+    return cleared;
+}
+
 
 
 //game - rules - levels - scoring - and -progression - is - integrated - here;;;
