@@ -167,8 +167,8 @@ void showToast(string msg, Color col) {
 }
 
 float clampf(float v, float lo, float hi) {
-    if (v < lo) return lo;
-    if (v > hi) return hi;
+    if (v< lo) return lo;
+    if (v> hi) return hi;
     return v;
 }
 
@@ -206,14 +206,11 @@ const Color COL_RED(255, 92, 100);
 const Color COL_CLEAR(0, 0, 0, 0);
 const Color COL_PANEL(38, 18, 78, 226);
 
-
 const Color CANDY_MAIN[max_color] = {
     Color(236, 64, 86),  Color(76, 196, 96),  Color(64, 140, 240),
     Color(252, 208, 48), Color(168, 92, 224), Color(255, 146, 40)
 };
-
 const string COLOR_NAME[max_color] = { "red", "green", "blue", "yellow", "purple", "orange" };
-
 
 bool isValidName(string s) {
     if (s.empty() || (int)s.size() > NAME_MAX_LEN) {
@@ -635,7 +632,7 @@ void beginswaping(int r1, int c1, int r2, int c2){
     selectedRow = selectedCol = -1;
 }
 
-// the swap animation is over: did it make a match?
+// the swap animation is over does it swapped
 void finishSwap(){
     if (swapCandies(fromRow, fromCol, toRow, toCol, boardMarked)){
         movesLeft--;
@@ -680,7 +677,7 @@ void clickCell(int r, int c) {
     {
         beginswaping(selectedRow, selectedCol, r, c);
     }
-    else                                               // far away: select the new one
+    else                                               // far away candy select the new one
 {
         selectedRow = r;
         selectedCol = c;
@@ -825,7 +822,7 @@ void submitName(){
 void drawNameEntry(){
     drawbackground(Color(78, 26, 140), Color(220, 72, 150), true);
 
-    // typing: only letters and digits are accepted, maximum 12
+    // typing only letter and digits are accepted maximum 12
     for (size_t i = 0; i < typedText.size(); i++) {
         char ch = typedText[i];
         bool isLetter = (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
@@ -870,7 +867,7 @@ void drawNameEntry(){
     if (uibutton(px + pw - 260.f, py + 262.f, 220.f, 58.f, "Back", 1)) goTo(SCR_MENU);
 }
 
-//  level select
+//level select
 void drawlevelselect() {
     drawbackground(Color(40, 70, 160), Color(160, 80, 200), true);
     if (keyEsc) goTo(SCR_MENU);
@@ -884,7 +881,7 @@ void drawlevelselect() {
     for (int i = 0; i < max_level; i++)
         nx[i] = 260.f + i * 290.f;
 
-    // the path between the circles (pink = open, grey = locked)
+    // the path between the circles pink = open grey = locked
     for (int i = 0; i + 1 < max_level; i++) {
         Color pathColor(120, 100, 160);
         if (i + 1 < levelsUnlocked) pathColor = Color(255, 190, 220);
@@ -927,7 +924,7 @@ void drawlevelselect() {
         }
     }
 
-    // information about level under mous
+    //information about level under mous
     if (hovered >= 0){
         float px = WIN_W * 0.5f - 300.f, py = 560.f;
         drawPanel(px, py, 600.f, 104.f);
