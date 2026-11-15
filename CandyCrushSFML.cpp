@@ -277,7 +277,47 @@ void shuffleboard(){
 }
 
 //  SECTIOn 3 
-
+void getlevelDefer(int number,int diff)
+{
+levelNumber=number;
+if(diff<0)
+{
+    diff=0;
+}
+if(diff>1)
+{
+diff=1;
+}
+numColors=6;
+if(number>=1&&number<=max_level)
+{
+int index=number-1;
+goalType=levelGoals[index];
+goalColor = levelGoalColors[index];
+goalCount = levelGoalCounts[index];
+float factor = 1.f;
+if (diff == 1) 
+{
+    factor = 0.8f; 
+}
+startMoves = (int)(levelMoves[index] * factor + 0.5f);
+ for (int i = 0; i < 3; i++)
+     {
+         starScore[i] = levelStars[index][i];
+     }
+    }
+    else{
+        goalType = GOAL_ENDLESS;
+        goalColor = 0;
+        goalCount = 0;
+        startMoves = 25;
+        if (diff == 1)
+{
+startMoves = 20;
+}
+starScore[0]=starScore[1]=starScore[2]=0;
+    }
+}
 
 
 //game - rules - levels - scoring - and -progression - is - integrated - here;;;
