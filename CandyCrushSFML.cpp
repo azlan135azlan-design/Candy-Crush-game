@@ -366,6 +366,63 @@ int removedcandies(bool marked[rows][colms], int comboValue)
     }
     return cleared;
 }
+int countJelly()  {
+    int count = 0;
+    for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < colms; c++)
+            {
+            if (boardJelly[r][c] > 0) 
+            {
+                count++;
+            }
+            }
+        }
+    return count;
+}
+
+int checklevelstatus() {
+    bool won = false;
+    if (goalType == GOAL_SCORE) 
+    {
+        won = (gameScore >= starScore[0]);
+    }
+    if (goalType == GOAL_COLLECT) 
+    {
+        won = (collected >= goalCount);
+    }
+    if (goalType == GOAL_JELLY)  
+    {
+        won = (countJelly() == 0);
+    }
+
+    if (won)
+    { 
+        return LS_WON;
+    }
+    if (movesLeft <= 0)
+    {
+        return LS_LOST;
+    }
+    return LS_PLAYING;
+}
+
+int calcstars(){
+    int stars = 1;
+    if (gameScore >= starScore[1]) 
+    {
+        stars++;
+    }
+    if (gameScore >= starScore[2]) 
+    {
+        stars++;
+    }
+    return stars;
+}
+
+int calccoins(int stars){
+    return 10 * stars;
+}
 
 
 
