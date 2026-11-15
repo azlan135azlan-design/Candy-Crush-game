@@ -11,7 +11,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
-#include <cstdint>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -667,9 +666,9 @@ void drawbar(float x1, float y1, float x2, float y2, float thick, Color col){
 void drawgradient(float x, float y, float w, float h, Color top, Color bottom) {
     for (int i = 0; i < 20; i++){
         float t = i / 19.f;
-        Color current((uint8_t)(top.r + (bottom.r - top.r) * t),
-            (uint8_t)(top.g + (bottom.g - top.g) * t),
-            (uint8_t)(top.b + (bottom.b - top.b) * t));
+        Color current((int)(top.r + (bottom.r - top.r) * t),
+            (int)(top.g + (bottom.g - top.g) * t),
+            (int)(top.b + (bottom.b - top.b) * t));
         drawbox(x, y + h * i / 20.f, w, h / 20.f + 1.f, current);
       }
 }
