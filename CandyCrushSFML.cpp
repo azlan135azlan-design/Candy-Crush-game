@@ -238,7 +238,43 @@ bool findvalid_moves(){
 }
 
 
+void initializeboard() {
+    for (int attempt = 0; attempt < 200; attempt++){
+        for (int r = 0; r < rows; r++){
+            for (int c = 0; c < colms; c++) {
+                int candy;
+                bool makesMatch;
+                do{
+                    makesMatch = false;
+                    candy = randInt(0, numColors - 1);
+                    if (c >= 2 && boardColor[r][c - 1] == candy && boardColor[r][c - 2] == candy)
+                        makesMatch = true;
+                    if (r >= 2 && boardColor[r - 1][c] == candy && boardColor[r - 2][c] == candy)
+                        makesMatch = true;
+                } while (makesMatch);
 
+                boardColor[r][c] = candy;
+           }
+        }
+        if (findvalid_moves()) return;
+     }
+}
+void shuffleboard(){
+    bool tempMarked[rows][colms];
+
+    for (int attempt = 0; attempt < 400; attempt++){
+        for (int i = 0; i < rows * colms * 3; i++)
+        {
+            int r1 = randInt(0, rows - 1);
+            int c1 = randInt(0, colms - 1);
+            int r2 = randInt(0, rows - 1);
+            int c2 = randInt(0, colms - 1);
+            swapPositions(r1, c1, r2, c2);
+        }
+        if (!lookmatches(tempMarked) && findvalid_moves()) return;
+    }
+    initializeboard();
+}
 
 //  SECTIOn 3 
 
