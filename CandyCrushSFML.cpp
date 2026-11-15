@@ -94,7 +94,7 @@ inline int randInt(int lo, int hi) {
 //SECTION 2
 
 
-engine - is - integrated - here-with-same-variables-names-as-used;;;
+//engine - is - integrated - here-with-same-variables-names-as-used;;;
 
 bool canswap(int r1, int c1, int r2, int c2) {
     if (!inBoard(r1, c1) || !inBoard(r2, c2)) {
@@ -280,7 +280,7 @@ void shuffleboard(){
 
 
 
-game - rules - levels - scoring - and -progression - is - integrated - here;;;
+//game - rules - levels - scoring - and -progression - is - integrated - here;;;
 
 
 
