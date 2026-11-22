@@ -167,7 +167,9 @@ bool swapCandies(int r1, int c1, int r2, int c2, bool marked[rows][colms]) {
         return true;
     }
     swapPositions(r1, c1, r2, c2);
+    
     return false;
+    
 }
 
 void gravity(int fall[rows][colms]) {
