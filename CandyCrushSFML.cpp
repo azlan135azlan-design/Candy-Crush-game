@@ -1803,70 +1803,149 @@ void drawhud(){
         Color(190, 175, 225), AL_CENTER, 0.f);
 }
 
-void drawOverlay() {
-    if (overlay == OV_NONE) return;
-
-    drawbox(0.f, 0.f, (float)WIN_W, (float)WIN_H, Color(10, 4, 24, 160));    // dark layer
+void drawOverlay(){
+    if (overlay == OV_NONE)
+        return;
+    drawbox(0.f, 0.f, (float)WIN_W, (float)WIN_H,
+        Color(10, 4, 24, 160));
     float cx = WIN_W * 0.5f;
 
     if (overlay == OV_PAUSE) {
         float px = cx - 220.f, py = 170.f;
         drawPanel(px, py, 440.f, 400.f);
-        drawtxt("PAUSED", 52.f, cx, py + 64.f, COL_GOLD, AL_CENTER, 3.f);
+        drawtxt("PAUSED", 52.f, cx, py + 64.f,
+            COL_GOLD, AL_CENTER, 3.f);
+        if (uibutton(px + 50.f, py + 120.f, 340.f, 60.f, "Resume", 2))
+            overlay = OV_NONE;
+        if (uibutton(px + 50.f, py + 200.f, 340.f, 60.f, "Restart", 1))
+            startLevel(currentLevel);
 
-        if (uibutton(px + 50.f, py + 120.f, 340.f, 60.f, "Resume", 2))    overlay = OV_NONE;
-        if (uibutton(px + 50.f, py + 200.f, 340.f, 60.f, "Restart", 1))   startLevel(currentLevel);
-        if (uibutton(px + 50.f, py + 280.f, 340.f, 60.f, "Main Menu", 3)) goTo(SCR_MENU);
-      }
-    else if (overlay == OV_WIN){
+        if (uibutton(px + 50.f, py + 280.f, 340.f, 60.f, "Main Menu", 3))
+            goTo(SCR_MENU);
+    }
+    else if (overlay == OV_WIN) {
         float px = cx - 290.f, py = 130.f;
         drawPanel(px, py, 580.f, 440.f);
-        drawtxt("LEVEL COMPLETE!", 50.f, cx, py + 60.f, COL_GOLD, AL_CENTER, 3.f);
+        drawtxt("LEVEL COMPLETE!", 50.f, cx, py + 60.f,
+            COL_GOLD, AL_CENTER, 3.f);
 
-        for (int k = 0; k < 3; k++) {                         
+        for (int k = 0; k < 3; k++) {
             Color starColor(40, 20, 80, 190);
-            if (k < endStars) starColor = COL_GOLD;
-            float sy = py + 165.f;
-            if (k == 1) sy -= 14.f;
-            drawstar(cx + (k - 1) * 120.f, sy, 52.f, starColor, Color(20, 8, 44), 3.f);
-        }
+            if (k < endStars)
+                starColor = COL_GOLD;
 
-        drawtxt("Score: " + to_string(gameScore), 36.f, cx, py + 262.f, COL_WHITE, AL_CENTER, 3.f);
+            float sy = py + 165.f;
+            if (k == 1)
+                sy -= 14.f;
+
+            drawstar(cx + (k - 1) * 120.f, sy, 52.f,
+                starColor, Color(20, 8, 44), 3.f);
+     }
+        drawtxt("Score: " + to_string(gameScore), 36.f,
+            cx, py + 262.f, COL_WHITE, AL_CENTER, 3.f);
+
         drawcoin(cx - 78.f, py + 314.f, 17.f);
-        drawtxt("+" + to_string(endCoins) + " coins", 32.f, cx - 48.f, py + 314.f, COL_GOLD, AL_LEFT, 3.f);
+
+        drawtxt("+" + to_string(endCoins) + " coins", 32.f,
+            cx - 48.f, py + 314.f, COL_GOLD, AL_LEFT, 3.f);
 
         float by = py + 360.f;
-        if (levelNumber < max_level){
-            if (uibutton(px + 24.f, by, 170.f, 60.f, "Next Level", 0, true, 24.f)) {
+        if (levelNumber < max_level) {
+            if (uibutton(px + 24.f, by, 170.f, 60.f,
+                "Next Level", 0, true, 24.f))
+            {
                 startLevel(levelNumber + 1);
             }
         }
-        else {
-            if (uibutton(px + 24.f, by, 170.f, 60.f, "Levels", 0, true, 24.f))
+        else{
+            if (uibutton(px + 24.f, by, 170.f, 60.f, "Levels", 0, true, 24.f)){
                 goTo(SCR_LEVELS);
+            }
         }
-        if (uibutton(px + 205.f, by, 170.f, 60.f, "Replay", 1, true, 24.f)) startLevel(levelNumber);
-        if (uibutton(px + 386.f, by, 170.f, 60.f, "Menu", 1, true, 24.f))   goTo(SCR_MENU);
+
+        if (uibutton(px + 205.f, by, 170.f, 60.f, "Replay", 1, true, 24.f)){
+            startLevel(levelNumber);
+        }
+
+        if (uibutton(px + 386.f, by, 170.f, 60.f, "Menu", 1, true, 24.f)){
+            goTo(SCR_MENU);
+        }
     }
-    else if (overlay == OV_LOSE){
+    else if (overlay == OV_LOSE) {
         float px = cx - 270.f, py = 160.f;
         float panelH = 370.f;
+        if (playerBoosters[1] > 0)
+            panelH = 440.f;
+
         drawPanel(px, py, 540.f, panelH);
         drawtxt("OUT OF MOVES", 50.f, cx, py + 62.f, COL_RED, AL_CENTER, 3.f);
-
         string line = "Jelly left: " + to_string(countJelly());
-        if (goalType == GOAL_SCORE)
-            line = "Score: " + to_string(gameScore) + " / " + to_string(starScore[0]);
-        else if (goalType == GOAL_COLLECT)
+
+        if (goalType == GOAL_SCORE){
+            line = "Score: " + to_string(gameScore) +  " / " + to_string(starScore[0]);
+        }
+        else if (goalType == GOAL_COLLECT){
             line = "Collected: " + to_string(collected) + " / " + to_string(goalCount);
-        drawtxt(line, 34.f, cx, py + 128.f, COL_WHITE, AL_CENTER, 3.f);
-        drawtxt("So close! Try again.", 23.f, cx, py + 170.f, COL_SUB, AL_CENTER, 0.f);
+        }
+        drawtxt(line, 34.f, cx, py + 128.f,
+            COL_WHITE, AL_CENTER, 3.f);
+        drawtxt("So close! Try again.", 23.f, cx,
+            py + 170.f, COL_SUB, AL_CENTER, 0.f);
 
         float by = py + 214.f;
-        if (uibutton(px + 50.f, by, 210.f, 62.f, "Try Again", 0)) startLevel(levelNumber);
-        if (uibutton(px + 280.f, by, 210.f, 62.f, "Menu", 1))     goTo(SCR_MENU);
-   }
- }
+        // use a +5 Moves booster to continue
+        if (playerBoosters[1] > 0){
+            string label = "Continue  (+5 Moves,  you have " + to_string(playerBoosters[1]) + ")";
+
+            if (uibutton(px + 50.f, by, 440.f, 58.f, label, 2, true, 22.f)){
+                playerBoosters[1]--;
+
+                saveprofiles();
+
+                movesLeft += 5;
+                overlay = OV_NONE;
+            }
+            by += 72.f;
+        }
+
+        if (uibutton(px + 50.f, by, 210.f, 62.f, "Try Again", 0)) {
+            startLevel(levelNumber);
+        }
+        if (uibutton(px + 280.f, by, 210.f, 62.f, "Menu", 1)) {
+            goTo(SCR_MENU);
+        }
+    }
+
+    else if (overlay == OV_ENDLESS){
+        float px = cx - 270.f, py = 150.f;
+
+        drawPanel(px, py, 540.f, 410.f);
+
+        drawtxt("GAME OVER", 52.f, cx, py + 62.f, COL_GOLD, AL_CENTER, 3.f);
+
+        drawtxt("Score: " + to_string(gameScore), 42.f, cx, py + 138.f, COL_WHITE, AL_CENTER, 3.f);
+        string msg = "Not in the top 10 this time.";
+        Color msgColor = COL_SUB;
+        if (endRank == 0) {
+            msg = "NEW HIGH SCORE!";
+            msgColor = COL_GREEN;
+        }
+        else if (endRank > 0) {
+            msg = "You are #" + to_string(endRank + 1) + " on the leaderboard!";
+            msgColor = COL_GREEN;
+        }
+        drawtxt(msg, 30.f, cx, py + 200.f,
+            msgColor, AL_CENTER, 3.f);
+        drawtxt(playerName + "  -  " + difficulityname[gameDifficulty], 22.f, cx, py + 244.f, COL_SUB, AL_CENTER, 0.f);
+
+        if (uibutton(px + 50.f, py + 296.f, 210.f, 62.f, "Play Again", 0)) {
+            startLevel(0);
+        }
+        if (uibutton(px + 280.f, py + 296.f, 210.f, 62.f, "Menu", 1)) {
+            goTo(SCR_MENU);
+        }
+    }
+}
 
 void drawGameScreen(){
     drawbackground(Color(56, 24, 120), Color(26, 10, 66), false);
@@ -1876,25 +1955,31 @@ void drawGameScreen(){
 }
 
 void updateGame(float dt){
-    if (overlay == OV_NONE) {
-        if (keyP || keyEsc) {
+    if (overlay == OV_NONE){
+        if (keyP || keyEsc){
             overlay = OV_PAUSE;
         }
         else{
+            if (keyNum1)
+                useBooster(0);
+
+            if (keyNum2)
+                useBooster(1);
+
             updateBoard(dt);
-            if (overlay == OV_NONE && boardPhase == PH_IDLE && clicked && cellfrom_mouse(mouseX, mouseY))
+            if (overlay == OV_NONE && boardPhase == PH_IDLE && clicked && cellfrom_mouse(mouseX, mouseY)) {
                 clickCell(mouseRow, mouseCol);
+            }
         }
     }
-    else if (overlay == OV_PAUSE)
-    {
-        if (keyP || keyEsc) overlay = OV_NONE;
+    else if (overlay == OV_PAUSE) {
+        if (keyP || keyEsc)
+            overlay = OV_NONE;
     }
-    else if (keyEsc)                                   
-    {
+    else if (keyEsc) {
         goTo(SCR_MENU);
-   }
-  }
+    }
+}
 bool loadFonts() {
     const string paths[4] = { "arialbd.ttf", "C:/Windows/Fonts/arialbd.ttf",
                               "C:/Windows/Fonts/segoeuib.ttf", "C:/Windows/Fonts/tahomabd.ttf" };
@@ -1941,12 +2026,19 @@ void updateAll(float dt){
     if (toastT > 0.f) toastT -= dt;
     if (screen == SCR_GAME) updateGame(dt);
 }
-
 void drawAll(){
-    if (screen == SCR_MENU)        drawMenu();
-    else if (screen == SCR_NAME)   drawNameEntry();
-    else if (screen == SCR_LEVELS) drawlevelselect();
-    else if (screen == SCR_GAME)   drawGameScreen();
+    if (screen == SCR_MENU)
+        drawMenu();
+    else if (screen == SCR_NAME)
+        drawNameEntry();
+    else if (screen == SCR_LEVELS)
+        drawlevelselect();
+    else if (screen == SCR_SHOP)
+        drawshop();
+    else if (screen == SCR_LEADER)
+        drawleadersboard();
+    else if (screen == SCR_GAME)
+        drawGameScreen();
     drawToast();
 }
 
@@ -1960,7 +2052,8 @@ int main(){
     }
     gWindow.setFramerateLimit(60);
 
-    loadprofile();                       
+    loadprofile();
+    loadleaderboard();
     locallevels(1, playerDifficulty);
     resetboardview();
 
@@ -1978,6 +2071,7 @@ int main(){
     saveprofiles();
     return 0;
 }
+
 
 
 
