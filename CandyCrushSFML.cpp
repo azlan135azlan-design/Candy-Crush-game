@@ -31,6 +31,21 @@ const int numofbosters = 2;
 
 const int boosterprice[numofbosters] = { 20, 40 };
 const string bostername[numofbosters] = { "Shuffle", "+5 Moves" };
+const string BOOSTER_PLURAL[numofbosters] = {
+    "Shuffles", "+5 Moves"
+};
+
+const string BOOSTER_DESC1[numofbosters] = {
+    "Mix up all the candies", "Get 5 extra moves in"
+};
+
+const string BOOSTER_DESC2[numofbosters] = {
+    "on the board.", "the current level."
+};
+
+const Color BOOSTER_COL[numofbosters] = {
+    Color(70, 170, 240), Color(90, 200, 120)
+};
 const string difficulityname[2] = { "Normal", "Hard" };
 
 const int GOAL_SCORE = 0;       
@@ -1564,3 +1579,4 @@ int main(){
     saveprofiles();
     return 0;
 }
+
