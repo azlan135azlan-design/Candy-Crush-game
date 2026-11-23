@@ -457,6 +457,7 @@ const float BOARD_Y = 140.f;
 const float PI = 3.14159265f;
 
 const string PROFILE_FILE = "progress.txt";
+const string SCORE_FILE = "highscores.txt";
 const int    NAME_MAX_LEN = 12;
 
 
@@ -621,24 +622,113 @@ bool loadprofile() {
 
 bool saveprofiles(){
     ofstream file(PROFILE_FILE);
-    if (!file)
-    {
+    if (!file){
         showToast("Could not save your progress!", COL_RED);
         return false;
     }
-    if (playerName.empty()) file << "name Player\n";
-    else                    file << "name " << playerName << "\n";
+    if (playerName.empty()) file << "name Player"<<endl;
+    else                    file << "name " << playerName << endl;
 
     file << "coins " << playerCoins << "\n";
-    file << "difficulty " << playerDifficulty << "\n";
+    file << "difficulty " << playerDifficulty << endl;
     file << "boosters";
     for (int i = 0; i < numofbosters; i++) file << " " << playerBoosters[i];
     file << "\n";
-    file << "unlocked " << levelsUnlocked << "\n";
+    file << "unlocked " << levelsUnlocked << endl;
     file << "stars";
     for (int i = 0; i < max_level; i++) file << " " << playerStars[i];
-    file << "\n";
+    file << endl;
     return true;
+}
+// bubble sort
+void sortleadersboard(){
+    for (int i = 0; i < leaderCount - 1; i++){
+        for (int j = 0; j < leaderCount - i - 1; j++){
+            if (leaderScores[j] < leaderScores[j + 1]){
+                int tempScore = leaderScores[j];
+                leaderScores[j] = leaderScores[j + 1];
+                leaderScores[j + 1] = tempScore;
+
+                int tempDiff = leaderDifficulties[j];
+                leaderDifficulties[j] = leaderDifficulties[j + 1];
+                leaderDifficulties[j + 1] = tempDiff;
+
+                string tempName = leaderNames[j];
+                leaderNames[j] = leaderNames[j + 1];
+                leaderNames[j + 1] = tempName;
+             }
+     }
+    }
+}
+bool loadleaderboard(){
+    leaderCount = 0;
+    ifstream file(SCORE_FILE);
+    if (!file) return false;
+
+    string name;
+    int scoreValue, diff;
+
+    while (leaderCount < max_score && file >> name){
+        if (!(file >> scoreValue >> diff)){
+            file.clear();
+            file.ignore(1000, '\n');
+            continue;
+        }
+
+        if (!isValidName(name) || scoreValue < 0 || diff < 0 || diff > 1)
+            continue;
+
+        leaderNames[leaderCount] = name;
+        leaderScores[leaderCount] = scoreValue;
+        leaderDifficulties[leaderCount] = diff;
+        leaderCount++;
+    }
+    sortleadersboard();
+    return true;
+}
+bool saveleaderboard(){
+    ofstream file(SCORE_FILE);
+
+    if (!file){
+        showToast("Could not save the leaderboard!", COL_RED);
+        return false;
+    }
+
+    for (int i = 0; i < leaderCount; i++){
+        file << leaderNames[i] << " "
+             << leaderScores[i] << " "
+             << leaderDifficulties[i] << "\n";
+    }
+    return true;
+}
+// insert a score in the right place
+// return the rank (0 = first) or -1 if not in top 10
+int addScore(string name, int scoreValue, int diff){
+    int rank = 0;
+    while (rank < leaderCount && leaderScores[rank] >= scoreValue)
+        rank++;
+
+    if (rank >= max_score)
+        return -1;
+    int last = max_score - 1;
+
+    if (leaderCount < max_score)
+        last = leaderCount;
+
+    // shifting lower scores down
+    for (int i = last; i > rank; i--){
+        leaderNames[i] = leaderNames[i - 1];
+        leaderScores[i] = leaderScores[i - 1];
+        leaderDifficulties[i] = leaderDifficulties[i - 1];
+    }
+    leaderNames[rank] = name;
+    leaderScores[rank] = scoreValue;
+    leaderDifficulties[rank] = diff;
+    if (leaderCount < max_score)
+        leaderCount++;
+
+    saveleaderboard();
+    return rank;
 }
 
 const int AL_LEFT = 0, AL_CENTER = 1, AL_RIGHT = 2;
@@ -1579,4 +1669,5 @@ int main(){
     saveprofiles();
     return 0;
 }
+
 
