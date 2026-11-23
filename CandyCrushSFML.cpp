@@ -1603,113 +1603,204 @@ void drawboosterbutton(int i, float x, float y, float s){
     }
 }
 
-void drawhud() {
-    const float px = 680.f;                  
+void drawhud(){
+    const float px = 680.f;
     const float pw = 380.f;
+
     bool endless = (goalType == GOAL_ENDLESS);
 
-    drawgradient(0.f, 0.f, (float)WIN_W, 130.f, Color(46, 18, 96), Color(30, 12, 64));
+    drawgradient(0.f, 0.f, (float)WIN_W, 130.f,
+        Color(46, 18, 96), Color(30, 12, 64));
+
     drawbox(0.f, 128.f, (float)WIN_W, 4.f, COL_PINK);
 
     string title = "LEVEL " + to_string(levelNumber);
-    if (endless) title = "ENDLESS MODE";
+
+    if (endless)
+        title = "ENDLESS MODE";
+
     drawtxt(title, 42.f, 30.f, 54.f, COL_WHITE, AL_LEFT, 4.f);
-    drawtxt(difficulityname[gameDifficulty] + " difficulty", 21.f, 32.f, 96.f,
-        diffColor(gameDifficulty), AL_LEFT, 0.f);
+
+    drawtxt(difficulityname[gameDifficulty] + " difficulty",
+        21.f, 32.f, 96.f, diffColor(gameDifficulty), AL_LEFT, 0.f);
+
     drawCoinsPill(WIN_W - 330.f, 38.f, 150.f, 46.f);
 
-    bool uiOn = (overlay == OV_NONE);      
-    if (uibutton(WIN_W - 164.f, 38.f, 140.f, 46.f, "Pause", 1, uiOn, 22.f))
-        overlay = OV_PAUSE;
+    bool uiOn = (overlay == OV_NONE);
 
+    if (uibutton(WIN_W - 164.f, 38.f, 140.f, 46.f, "Pause", 1, uiOn, 22.f)){
+        overlay = OV_PAUSE;
+    }
+
+    // score card
     float y = 150.f;
+
     drawcard(px, y, pw, 124.f, "SCORE");
-    drawtxt(to_string(gameScore), 52.f, px + 18.f, y + 66.f, COL_WHITE, AL_LEFT, 3.f);
+
+    drawtxt(to_string(gameScore), 52.f,
+        px + 18.f, y + 66.f, COL_WHITE, AL_LEFT, 3.f);
 
     if (!endless){
-        float bx = px + 20.f, bw = pw - 40.f, by = y + 98.f;
-        float maxScore = (float)starScore[2];              
+        float bx = px + 20.f;
+        float bw = pw - 40.f;
+        float by = y + 98.f;
+
+        float maxScore = (float)starScore[2];
 
         drawbox(bx, by, bw, 14.f, Color(0, 0, 0, 130));
-        float fill = clampf(gameScore / maxScore, 0.f, 1.f) * bw;
-        if (fill > 0.f) drawbox(bx, by, fill, 14.f, COL_PINK);
 
-        for (int k = 0; k < 3; k++)                         
-        {
+        float fill = clampf(gameScore / maxScore, 0.f, 1.f) * bw;
+
+        if (fill > 0.f)
+            drawbox(bx, by, fill, 14.f, COL_PINK);
+
+        for (int k = 0; k < 3; k++){
             float markX = bx + bw * (starScore[k] / maxScore);
+
             Color starColor(60, 40, 110);
-            if (gameScore >= starScore[k]) starColor = COL_GOLD;
-            drawstar(markX, by - 12.f, 11.f, starColor, Color(20, 8, 44), 2.f);
+
+            if (gameScore >= starScore[k])
+                starColor = COL_GOLD;
+
+            drawstar(markX, by - 12.f, 11.f,
+                starColor, Color(20, 8, 44), 2.f);
         }
     }
+    else {
+        int best = 0;
 
-    
+        if (leaderCount > 0)
+            best = leaderScores[0];
+
+        drawtxt("Best: " + to_string(best), 22.f,
+            px + pw - 18.f, y + 24.f, COL_GOLD, AL_RIGHT);
+
+        drawtxt("Big combos give you a bonus move!", 18.f,
+            px + 18.f, y + 104.f, COL_SUB, AL_LEFT, 0.f);
+    }
+
+    // moves card
     y = 290.f;
     drawcard(px, y, 180.f, 112.f, "MOVES");
-    Color movesColor = COL_WHITE;
-    if (movesLeft <= 5) movesColor = COL_RED;
-    int shownMoves = movesLeft;
-    if (shownMoves < 0) shownMoves = 0;
-    drawtxt(to_string(shownMoves), 58.f, px + 90.f, y + 70.f, movesColor, AL_CENTER, 3.f);
 
+    Color movesColor = COL_WHITE;
+    if (movesLeft <= 5)
+        movesColor = COL_RED;
+    
+    int shownMoves = movesLeft;
+    if (shownMoves < 0)
+        shownMoves = 0;
+
+    drawtxt(to_string(shownMoves), 58.f,
+        px + 90.f, y + 70.f, movesColor, AL_CENTER, 3.f);
+
+    // stars card
     if (!endless){
         drawcard(px + 200.f, y, 180.f, 112.f, "STARS");
-        for (int k = 0; k < 3; k++){
+
+        for (int k = 0; k < 3; k++) {
             Color starColor(60, 40, 110);
-            if (gameScore >= starScore[k]) starColor = COL_GOLD;
-            drawstar(px + 200.f + 34.f + 56.f * k, y + 70.f, 24.f, starColor, Color(20, 8, 44), 3.f);
+
+            if (gameScore >= starScore[k])
+                starColor = COL_GOLD;
+
+            drawstar(px + 200.f + 34.f + 56.f * k,
+                y + 70.f, 24.f, starColor,
+                Color(20, 8, 44), 3.f);
         }
     }
+    else {
+        drawcard(px + 200.f, y, 180.f, 112.f, "COMBO");
 
-    
+        string comboText = "-";
+        Color comboColor = COL_SUB;
+
+        if (combo >= 2){
+            comboText = "x" + to_string(combo);
+            comboColor = COL_GOLD;
+        }
+
+        drawtxt(comboText, 52.f, px + 290.f,
+            y + 70.f, comboColor, AL_CENTER, 3.f);
+    }
+
+    // goal card
     y = 418.f;
     drawcard(px, y, pw, 106.f, "GOAL");
+    bool done = false;
+    float progress = 0.f;
 
-    bool done = false;                     
-    float progress = 0.f;                    
     string detail = "Play until the moves run out";
 
     if (goalType == GOAL_SCORE){
         progress = clampf((float)gameScore / starScore[0], 0.f, 1.f);
+
         detail = to_string(gameScore) + " / " + to_string(starScore[0]);
+
         done = (gameScore >= starScore[0]);
     }
-    else if (goalType == GOAL_COLLECT)
-    {
+    else if (goalType == GOAL_COLLECT){
         progress = clampf((float)collected / goalCount, 0.f, 1.f);
+
         detail = to_string(collected) + " / " + to_string(goalCount);
+
         done = (collected >= goalCount);
     }
-    else if (goalType == GOAL_JELLY)
-    {
+    else if (goalType == GOAL_JELLY){
         int jellyLeft = countJelly();
+
         detail = to_string(jellyLeft) + " jelly left";
+
         done = (jellyLeft == 0);
     }
 
     float textX = px + 18.f;
-    if (goalType == GOAL_COLLECT)            // small picture of the candy to collect
-    {
+
+    if (goalType == GOAL_COLLECT) {
         drawCandy(goalColor, px + 38.f, y + 62.f);
         textX = px + 72.f;
     }
-    if (goalType == GOAL_JELLY)              // small picture of the jelly
-{
+
+    if (goalType == GOAL_JELLY)
+    {
         drawjelly(px + 4.f, y + 28.f);
         textX = px + 72.f;
-     }
+    }
+
     Color goalColorText = COL_WHITE;
-    if (done) goalColorText = COL_GREEN;
-    drawtxt(goaltext(levelNumber), 24.f, textX, y + 56.f, goalColorText, AL_LEFT);
+
+    if (done)
+        goalColorText = COL_GREEN;
+
+    drawtxt(goaltext(levelNumber), 24.f,
+        textX, y + 56.f, goalColorText, AL_LEFT);
+
     drawtxt(detail, 20.f, textX, y + 86.f, COL_SUB, AL_LEFT, 0.f);
 
     if (goalType == GOAL_SCORE || goalType == GOAL_COLLECT) {
-        drawbox(px + pw - 120.f, y + 78.f, 100.f, 10.f, Color(0, 0, 0, 130));
-        if (progress > 0.f) drawbox(px + pw - 120.f, y + 78.f, 100.f * progress, 10.f, COL_GREEN);
+        drawbox(px + pw - 120.f, y + 78.f,
+            100.f, 10.f, Color(0, 0, 0, 130));
+
+        if (progress > 0.f) {
+            drawbox(px + pw - 120.f, y + 78.f,
+                100.f * progress, 10.f, COL_GREEN);
+        }
     }
-    if (done) drawtick(px + pw - 34.f, y + 40.f, 26.f, COL_GREEN);
-    drawtxt("Click a candy, then a neighbour to swap them.    P = pause", 17.f,
-        px + pw * 0.5f, 600.f, Color(190, 175, 225), AL_CENTER, 0.f);
+    if (done)
+        drawtick(px + pw - 34.f, y + 40.f, 26.f, COL_GREEN);
+
+    // booster buttons
+    drawtxt("BOOSTERS", 19.f, px + 4.f, 548.f, COL_SUB, AL_LEFT, 0.f);
+
+    float size = 112.f;
+    float space = pw - 2 * size;
+
+    for (int i = 0; i < numofbosters; i++)
+        drawboosterbutton(i, px + i * (size + space), 562.f, size);
+
+    drawtxt("Click a candy, then a neighbour    P pause    1 Shuffle    2 +5 Moves",
+        16.f, px + pw * 0.5f, 700.f,
+        Color(190, 175, 225), AL_CENTER, 0.f);
 }
 
 void drawOverlay() {
@@ -1887,6 +1978,7 @@ int main(){
     saveprofiles();
     return 0;
 }
+
 
 
 
