@@ -1088,6 +1088,31 @@ void startLevel(int n){
 
     if (screen != SCR_GAME) goTo(SCR_GAME);
 }
+void useBooster(int i){
+    if (overlay != OV_NONE || boardPhase != PH_IDLE)
+        return;
+
+    if (playerBoosters[i] <= 0)
+{
+        showToast("No " + bostername[i] + " left - buy more in the Shop", COL_GOLD);
+        return;
+    }
+
+    playerBoosters[i]--;
+    saveprofiles();
+
+    if (i == 0)
+    {
+        shuffleboard();
+        selectedRow = selectedCol = -1;
+        showToast("Board shuffled!", COL_GREEN);
+    }
+    else
+    {
+        movesLeft += 5;
+        showToast("5 extra moves added!", COL_GREEN);
+    }
+}
 
 // first click sellect candy, second click on a neighbour swaps them
 void clickCell(int r, int c) {
@@ -1379,10 +1404,169 @@ void drawlevelselect() {
 
     if (uibutton(30.f, WIN_H - 76.f, 150.f, 50.f, "Back", 1)) goTo(SCR_MENU);
 }
+void drawboostericon(int kind, float cx, float cy, float s){
+    if (kind == 0)
+        drawtxt("MIX", s * 0.45f, cx, cy, COL_WHITE);
+    else
+        drawtxt("+5", s * 0.62f, cx, cy, COL_WHITE);
+}
+void drawshop(){
+    drawbackground(Color(120, 50, 160), Color(250, 120, 130), true);
+    if (keyEsc)
+        goTo(SCR_MENU);
+    drawtxt("BOOSTER SHOP", 50.f, WIN_W * 0.5f, 66.f, COL_WHITE, AL_CENTER, 5.f);
+    drawCoinsPill(WIN_W - 190.f, 30.f, 160.f, 44.f);
 
+    float cardW = 330.f, cardH = 420.f, gap = 60.f;
+    float x0 = (WIN_W - (2 * cardW + gap)) * 0.5f;
+    float y0 = 120.f;
+
+    for (int i = 0; i < numofbosters; i++) {
+        float x = x0 + i * (cardW + gap);
+        float cx = x + cardW * 0.5f;
+
+        drawPanel(x, y0, cardW, cardH);
+
+        drawcircle(cx, y0 + 96.f, 62.f, BOOSTER_COL[i],
+            darken(BOOSTER_COL[i], 0.45f), 5.f);
+
+        drawboostericon(i, cx, y0 + 98.f, 66.f);
+
+        drawtxt(bostername[i], 34.f, cx, y0 + 198.f, COL_WHITE, AL_CENTER, 3.f);
+        drawtxt(BOOSTER_DESC1[i], 21.f, cx, y0 + 244.f, COL_SUB, AL_CENTER, 0.f);
+        drawtxt(BOOSTER_DESC2[i], 21.f, cx, y0 + 270.f, COL_SUB, AL_CENTER, 0.f);
+        drawcoin(cx - 34.f, y0 + 318.f, 16.f);
+        drawtxt(to_string(boosterprice[i]), 32.f, cx + 6.f,
+            y0 + 318.f, COL_GOLD, AL_LEFT);
+        drawtxt("You have: " + to_string(playerBoosters[i]),
+            20.f, cx, y0 + 356.f, COL_WHITE, AL_CENTER, 0.f);
+
+        if (uibutton(x + 50.f, y0 + 372.f, cardW - 100.f,
+            38.f, "Buy", 2, true, 22.f)) {
+            if (playerCoins >= boosterprice[i]){
+                playerCoins -= boosterprice[i];
+                playerBoosters[i]++;
+
+                saveprofiles();
+
+                showToast("Bought! You now have " +
+                    to_string(playerBoosters[i]) + " " +
+                    BOOSTER_PLURAL[i], COL_GREEN);
+            }
+            else{
+                showToast("Not enough coins. You need " +
+                    to_string(boosterprice[i]), COL_RED);
+            }
+        }
+    }
+
+    drawtxt("Earn coins by finishing levels: 10 coins for every star!",
+        22.f, WIN_W * 0.5f, 660.f, COL_WHITE, AL_CENTER, 0.f);
+
+    if (uibutton(30.f, WIN_H - 76.f, 150.f, 50.f, "Back", 1))
+        goTo(SCR_MENU);
+}
+
+// leaderboard
+void drawleadersboard(){
+    drawbackground(Color(50, 30, 120), Color(190, 70, 160), true);
+    if (keyEsc)
+        goTo(SCR_MENU);
+    drawtxt("LEADERBOARD", 50.f, WIN_W * 0.5f, 56.f, COL_WHITE, AL_CENTER, 5.f);
+    drawtxt("Endless Mode  -  Top 10", 22.f,
+        WIN_W * 0.5f, 98.f, COL_SUB, AL_CENTER, 0.f);
+    float px = 150.f, py = 124.f, pw = 800.f, ph = 536.f;
+
+    drawPanel(px, py, pw, ph);
+
+    float colRank = px + 70.f;
+    float colName = px + 150.f;
+    float colScore = px + 560.f;
+    float colDiff = px + 690.f;
+    drawtxt("RANK", 20.f, colRank, py + 30.f, COL_GOLD);
+    drawtxt("PLAYER", 20.f, colName, py + 30.f, COL_GOLD, AL_LEFT);
+    drawtxt("SCORE", 20.f, colScore, py + 30.f, COL_GOLD, AL_RIGHT);
+    drawtxt("DIFFICULTY", 20.f, colDiff, py + 30.f, COL_GOLD);
+    drawbox(px + 24.f, py + 52.f, pw - 48.f, 2.f,
+        Color(255, 150, 210, 120));
+
+    for (int i = 0; i < max_score; i++){
+        float rowY = py + 78.f + i * 44.f;
+        if (i % 2 == 0)
+            drawbox(px + 20.f, rowY - 20.f, pw - 40.f, 40.f,
+                Color(255, 255, 255, 18));
+
+        Color rankColor = COL_SUB;
+        if (i < 3)
+            rankColor = COL_GOLD;
+
+        drawtxt(to_string(i + 1), 24.f, colRank, rowY, rankColor);
+        if (i < leaderCount) {
+            drawtxt(leaderNames[i], 26.f, colName, rowY,
+                COL_WHITE, AL_LEFT);
+
+            drawtxt(to_string(leaderScores[i]), 26.f, colScore,
+                rowY, COL_GOLD, AL_RIGHT);
+
+            drawtxt(difficulityname[leaderDifficulties[i]], 22.f,
+                colDiff, rowY, diffColor(leaderDifficulties[i]));
+        }
+        else {
+            drawtxt("---", 24.f, colName, rowY,
+                Color(150, 130, 190), AL_LEFT, 0.f);
+
+            drawtxt("---", 24.f, colScore, rowY,
+                Color(150, 130, 190), AL_RIGHT, 0.f);
+       }
+    }
+
+    if (leaderCount == 0){
+        drawtxt("No scores yet - play Endless Mode!",
+            24.f, WIN_W * 0.5f, py + ph + 24.f, COL_WHITE);
+    }
+
+    if (uibutton(30.f, WIN_H - 76.f, 150.f, 50.f, "Back", 1))
+        goTo(SCR_MENU);
+}
 void drawcard(float x, float y, float w, float h, string label){
     drawbox(x, y, w, h, Color(30, 12, 64, 225), Color(255, 150, 210, 100), 2.f);
     drawtxt(label, 19.f, x + 18.f, y + 24.f, COL_SUB, AL_LEFT, 0.f);
+}
+void drawboosterbutton(int i, float x, float y, float s){
+    bool enabled = (overlay == OV_NONE);
+    bool hover = enabled && mouseIn(x, y, s, s);
+    int owned = playerBoosters[i];
+    Color base(104, 92, 134);
+    if (owned > 0)
+        base = BOOSTER_COL[i];
+
+    if (hover)
+        base = lighten(base, 0.18f);
+
+    drawbox(x, y + 5.f, s, s, Color(0, 0, 0, 95));
+    drawbox(x, y, s, s, base, darken(base, 0.45f), 3.f);
+
+    drawboostericon(i, x + s * 0.5f, y + s * 0.42f, s * 0.52f);
+    drawtxt(bostername[i], 17.f, x + s * 0.5f,
+        y + s - 17.f, COL_WHITE);
+
+    // badge with the number own
+    Color badge(70, 60, 96);
+
+    if (owned > 0)
+        badge = COL_PINK;
+
+    drawcircle(x + s - 8.f, y + 8.f, 15.f, badge, COL_WHITE, 2.f);
+    drawtxt(to_string(owned), 18.f, x + s - 8.f,
+        y + 8.f, COL_WHITE, AL_CENTER, 0.f);
+
+    drawtxt(to_string(i + 1), 16.f, x + 14.f,
+        y + 14.f, COL_SUB, AL_CENTER, 0.f);
+
+    if (hover && clicked){
+        clicked = false;
+        useBooster(i);
+    }
 }
 
 void drawhud() {
@@ -1669,5 +1853,6 @@ int main(){
     saveprofiles();
     return 0;
 }
+
 
 
