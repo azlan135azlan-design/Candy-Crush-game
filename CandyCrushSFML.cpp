@@ -1000,21 +1000,35 @@ float fallOffsetY(int r, int c) {
 }
 
 //sve progres and open the result box
+// the level is finished
 void onLevelEnd(int st){
     boardPhase = PH_IDLE;
+    if (goalType == GOAL_ENDLESS){
+        endRank = -1;
+        
+        if (gameScore > 0)
+            endRank = addScore(playerName, gameScore, playerDifficulty);
+
+        overlay = OV_ENDLESS;
+        return;
+    }
+
     if (st == LS_WON){
         endStars = calcstars();
         endCoins = calccoins(endStars);
 
         int li = levelNumber - 1;
-        if (endStars > playerStars[li]) playerStars[li] = endStars;
+        if (endStars > playerStars[li])
+            playerStars[li] = endStars;
+
         if (levelNumber < max_level && levelsUnlocked < levelNumber + 1)
             levelsUnlocked = levelNumber + 1;
+
         playerCoins += endCoins;
         saveprofiles();
         overlay = OV_WIN;
     }
-    else {
+    else{
         overlay = OV_LOSE;
     }
 }
@@ -1215,14 +1229,13 @@ void drawBoard() {
 
 
 //  SCREEN
-void drawMenu(){
+void drawMenu() {
     drawbackground(Color(78, 26, 140), Color(220, 72, 150), true);
     drawtxt("CANDY", 84.f, WIN_W * 0.5f, 70.f, COL_GOLD, AL_CENTER, 5.f);
     drawtxt("CRUSH", 84.f, WIN_W * 0.5f, 150.f, COL_PINK, AL_CENTER, 5.f);
-
     float bx = WIN_W * 0.5f - 190.f;
     float bw = 380.f, bh = 52.f;
-    float y = 232.f;                       
+    float y = 232.f;
     float step = 62.f;
 
     if (uibutton(bx, y, bw, bh, "Play", 0)){
@@ -1230,46 +1243,67 @@ void drawMenu(){
         goTo(SCR_NAME);
     }
     y += step;
-
     if (uibutton(bx, y, bw, bh, "Level Select", 1)){
-        if (playerName.empty()) {
+        if (playerName.empty()){
             afterName = NA_LEVELS;
             goTo(SCR_NAME);
-         }
+        }
         else{
             goTo(SCR_LEVELS);
         }
-      }
+    }
     y += step;
+    if (uibutton(bx, y, bw, bh, "Endless Mode", 1)){
+        afterName = NA_ENDLESS;
+        goTo(SCR_NAME);
+    }
 
+    y += step;
+    // difficulity buttons
     int diffStyle = 4;
-    if (playerDifficulty == 1) diffStyle = 3;
-    if (uibutton(bx, y, bw, bh, "Difficulty: " + difficulityname[playerDifficulty], diffStyle))
+    if (playerDifficulty == 1)
+        diffStyle = 3;
+
+    if (uibutton(bx, y, bw, bh,
+        "Difficulty: " + difficulityname[playerDifficulty], diffStyle))
     {
         playerDifficulty = (playerDifficulty + 1) % 2;
         saveprofiles();
     }
     y += step;
+    if (uibutton(bx, y, bw, bh, "Booster Shop", 1))
+        goTo(SCR_SHOP);
 
+    y += step;
+    if (uibutton(bx, y, bw, bh, "Leaderboard", 1))
+        goTo(SCR_LEADER);
+
+    y += step;
     if (uibutton(bx, y, bw, bh, "Exit", 3))
         gWindow.close();
 
     drawCoinsPill(24.f, WIN_H - 66.f, 150.f, 44.f);
     string who = "Welcome!";
-    if (!playerName.empty()) who = "Player: " + playerName;
-    drawtxt(who, 24.f, WIN_W - 28.f, WIN_H - 44.f, COL_WHITE, AL_RIGHT);
+    if (!playerName.empty())
+        who = "Player: " + playerName;
+
+    drawtxt(who, 24.f, WIN_W - 28.f, WIN_H - 44.f,
+        COL_WHITE, AL_RIGHT);
 }
 
 //name entry 
 void submitName(){
-    if (!isValidName(nameBuf))
-    {
+    if (!isValidName(nameBuf)){
         nameMsg = "Enter 1 to 12 letters or numbers";
         return;
     }
     playerName = nameBuf;
     saveprofiles();
 
+    if (afterName == NA_ENDLESS){
+        startLevel(0);
+        return;
+    }
     goTo(SCR_LEVELS);
 }
 
@@ -1853,6 +1887,7 @@ int main(){
     saveprofiles();
     return 0;
 }
+
 
 
 
