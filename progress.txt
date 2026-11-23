@@ -1,0 +1,6 @@
+name player1
+coins 501080
+difficulty 0
+boosters 97 48
+unlocked 3
+stars 3 3 3
