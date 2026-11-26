@@ -479,7 +479,7 @@ const int NA_LEVELS = 0;
 const int NA_ENDLESS = 1;
 
 RenderWindow gWindow(VideoMode({ (unsigned)WIN_W, (unsigned)WIN_H }), "Candy Crush",
-    Style::Titlebar | Style::Close);
+    Style::Default);
 Font gFont;
 float gTime = 0.f;
 
@@ -1994,9 +1994,27 @@ void readEvents(){
     keyP = keyNum1 = keyNum2 = false;
     typedText.clear();
 
-    while (auto event = gWindow.pollEvent()){
-        if (event->is<Event::Closed>())  {
+    while (auto event = gWindow.pollEvent()) {
+        if (event->is<Event::Closed>()) {
             gWindow.close();
+        }
+        else if (const auto* resized = event->getIf<Event::Resized>()) {
+            float windowRatio = (float)resized->size.x / (float)resized->size.y;
+            float viewRatio = (float)WIN_W / (float)WIN_H;
+            float sizeX = 1.f, sizeY = 1.f, posX = 0.f, posY = 0.f;
+
+            if (windowRatio > viewRatio){
+                sizeX = viewRatio / windowRatio;
+                posX = (1.f - sizeX) * 0.5f;
+            }
+            else {
+                sizeY = windowRatio / viewRatio;
+                posY = (1.f - sizeY) * 0.5f;
+            }
+
+            View view(FloatRect({ 0.f, 0.f }, { (float)WIN_W, (float)WIN_H }));
+            view.setViewport(FloatRect({ posX, posY }, { sizeX, sizeY }));
+            gWindow.setView(view);
         }
         else if (const auto* key = event->getIf<Event::KeyPressed>()) {
             if (key->code == Keyboard::Key::Escape)    keyEsc = true;
@@ -2006,18 +2024,19 @@ void readEvents(){
             if (key->code == Keyboard::Key::Num1)      keyNum1 = true;
             if (key->code == Keyboard::Key::Num2)      keyNum2 = true;
         }
-        else if (const auto* text = event->getIf<Event::TextEntered>()){
+        else if (const auto* text = event->getIf<Event::TextEntered>()) {
             if (text->unicode >= 32 && text->unicode < 127)
                 typedText += (char)text->unicode;
         }
-        else if (const auto* press = event->getIf<Event::MouseButtonPressed>()){
+        else if (const auto* press = event->getIf<Event::MouseButtonPressed>()) {
             if (press->button == Mouse::Button::Left) clicked = true;
         }
     }
 
     Vector2i mousePos = Mouse::getPosition(gWindow);
-    mouseX = (float)mousePos.x;
-    mouseY = (float)mousePos.y;
+    Vector2f worldMouse = gWindow.mapPixelToCoords(mousePos);
+    mouseX = worldMouse.x;
+    mouseY = worldMouse.y;
     mouseDown = Mouse::isButtonPressed(Mouse::Button::Left);
 }
 
